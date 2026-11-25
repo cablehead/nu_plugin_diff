@@ -1,0 +1,77 @@
+/* <diff-file> and <diff-files>. Colors are Pierre's (@pierre/diffs) theme
+   accents, as diffs-rs records them. */
+
+diff-file, diff-files {
+  --d-bg: #ffffff; --d-fg: #0a0a0a; --d-dim: #6b7280; --d-line: #e5e7eb; --d-panel: #f7f7f8;
+  --d-add: #18a46c; --d-del: #d52c36; --d-mod: #009fff; --d-ren: #c026d3;
+  --d-add-bg: color-mix(in srgb, var(--d-add) 12%, transparent);
+  --d-del-bg: color-mix(in srgb, var(--d-del) 12%, transparent);
+  --d-hunk-bg: color-mix(in srgb, var(--d-mod) 8%, transparent);
+  --d-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--d-fg);
+  background: var(--d-bg);
+}
+@media (prefers-color-scheme: dark) {
+  diff-file, diff-files {
+    --d-bg: #0a0a0a; --d-fg: #fafafa; --d-dim: #9ca3af; --d-line: #262626; --d-panel: #141414;
+    --d-add: #07c480; --d-del: #ff2e3f; --d-mod: #009fff; --d-ren: #e879f9;
+  }
+}
+
+/* ---- <diff-file> */
+diff-file { display: flex; flex-direction: column; min-height: 0; position: relative; }
+diff-file .dhead:empty { display: none; }
+diff-file .dhead { flex: none; border-bottom: 1px solid var(--d-line); }
+diff-file .dhead .vhead { position: static; }
+/* overflow-anchor: the browser's own scroll anchoring would fight the window
+   swaps; the component places the rows itself */
+diff-file .scroll { flex: 1; min-height: 0; overflow: auto; position: relative; overflow-anchor: none;
+                    overscroll-behavior: contain; outline: none; }
+diff-file .spacer { position: relative; }
+diff-file .win { position: absolute; left: 0; right: 0; }
+diff-file.loading .dhead::after { content: "loading"; color: var(--d-dim); font: 11px var(--d-mono); padding: 0 12px; }
+
+section.vfile { position: absolute; left: 0; right: 0; overflow: hidden; border-top: 1px solid var(--d-line); }
+section.vfile.cut-top { border-top: none; }
+.vhead { position: absolute; top: 0; left: 0; right: 0; height: 40px; display: flex; gap: 8px; align-items: center;
+         padding: 0 12px; background: var(--d-panel); border-bottom: 1px solid var(--d-line);
+         font: 12px var(--d-mono); white-space: nowrap; overflow: hidden; }
+.vhead .path { overflow: hidden; text-overflow: ellipsis; }
+.vhead .spacer { flex: 1; }
+.vhead .badge { font-size: 11px; padding: 0 6px; border-radius: 10px; border: 1px solid; }
+.badge.added { color: var(--d-add); } .badge.deleted { color: var(--d-del); } .badge.renamed { color: var(--d-ren); }
+.adds { color: var(--d-add); } .dels { color: var(--d-del); }
+.vrows { position: absolute; left: 0; right: 0; overflow-x: auto; }
+
+.row { display: grid; grid-template-columns: 4.2em 4.2em 1.4em 1fr; width: max-content; min-width: 100%;
+       font: 12px var(--d-mono); line-height: 20px; height: 20px; }
+.row .no { text-align: right; padding: 0 8px; color: var(--d-dim); user-select: none; }
+.row .sign { text-align: center; color: var(--d-dim); user-select: none; }
+.row .code { white-space: pre; padding-right: 16px; background: transparent; color: inherit; }
+.row.add { background: var(--d-add-bg); } .row.add .sign { color: var(--d-add); }
+.row.del { background: var(--d-del-bg); } .row.del .sign { color: var(--d-del); }
+.row.hunk-header { background: var(--d-hunk-bg); color: var(--d-dim); }
+.row.meta .code { color: var(--d-dim); font-style: italic; }
+.derr { padding: 12px; color: var(--d-del); font: 12px var(--d-mono); }
+
+/* ---- <diff-files> */
+diff-files { display: block; overflow: auto; font: 12px var(--d-mono); }
+diff-files .dsum { position: sticky; top: 0; z-index: 1; display: flex; gap: 8px; padding: 8px 10px;
+                   background: var(--d-panel); border-bottom: 1px solid var(--d-line); }
+diff-files .dsum.loading::after { content: "loading"; color: var(--d-dim); }
+diff-files ul { list-style: none; margin: 0; padding: 0 0 0 12px; }
+diff-files > ul { padding-left: 4px; }
+diff-files summary, diff-files li.file { display: flex; gap: 6px; align-items: baseline; padding: 2px 8px;
+                                         white-space: nowrap; cursor: pointer; }
+diff-files summary { list-style: none; color: var(--d-dim); }
+diff-files summary::-webkit-details-marker { display: none; }
+diff-files summary::before { content: "\25BE"; width: 1em; }
+diff-files details:not([open]) > summary::before { content: "\25B8"; }
+diff-files .name { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+diff-files .n { display: flex; gap: 6px; font-size: 11px; color: var(--d-dim); }
+diff-files .st { width: 1.2em; font-weight: 600; }
+diff-files .st.added { color: var(--d-add); } diff-files .st.deleted { color: var(--d-del); }
+diff-files .st.modified { color: var(--d-mod); } diff-files .st.renamed { color: var(--d-ren); }
+diff-files li.file:hover { background: var(--d-panel); }
+diff-files li.file.active { background: color-mix(in srgb, var(--d-mod) 14%, transparent);
+                            box-shadow: inset 3px 0 0 var(--d-mod); }
