@@ -21,7 +21,8 @@ diff-file, diff-files {
 /* ---- <diff-file> */
 diff-file { display: flex; flex-direction: column; min-height: 0; position: relative; }
 diff-file .dhead:empty { display: none; }
-diff-file .dhead { flex: none; border-bottom: 1px solid var(--d-line); }
+/* the header that stays put lies over the top of the rows, so showing it never moves them */
+diff-file .dhead { position: absolute; top: 0; left: 0; right: 0; z-index: 2; }
 diff-file .dhead .vhead { position: static; }
 /* overflow-anchor: the browser's own scroll anchoring would fight the window
    swaps; the component places the rows itself */
@@ -29,7 +30,7 @@ diff-file .scroll { flex: 1; min-height: 0; overflow: auto; position: relative; 
                     overscroll-behavior: contain; outline: none; }
 diff-file .spacer { position: relative; }
 diff-file .win { position: absolute; left: 0; right: 0; }
-diff-file.loading .dhead::after { content: "loading"; color: var(--d-dim); font: 11px var(--d-mono); padding: 0 12px; }
+diff-file.loading::after { content: "loading"; position: absolute; right: 12px; bottom: 8px; z-index: 2; color: var(--d-dim); font: 11px var(--d-mono); }
 
 section.vfile { position: absolute; left: 0; right: 0; overflow: hidden; border-top: 1px solid var(--d-line); }
 section.vfile.cut-top { border-top: none; }

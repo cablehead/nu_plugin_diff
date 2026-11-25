@@ -110,7 +110,7 @@ rocket("diff-file", {
         if (!r.unchanged) {
           const old = g;
           win.innerHTML = r.html;
-          if (r.head != null) headEl.innerHTML = r.head;
+          if (r.head != null) serverHead = r.head;
           st.fp = r.fp; st.top = r.top; st.bot = r.bot; st.total = r.total;
           if (st.target != null) {
             place(geo(null), st.target);
@@ -122,10 +122,7 @@ rocket("diff-file", {
             const dTop = y >= st.top && y <= st.bot ? box.scrollTop - (y - st.top) : toDOM(old, st.top);
             place(geo(dTop), y);
           }
-          if (r.cur !== st.cur) {
-            st.cur = r.cur;
-            host.dispatchEvent(new CustomEvent("diff-at", { bubbles: true, detail: { file: r.cur } }));
-          }
+          syncHead();
         }
       } catch (e) {
         win.innerHTML = `<div class="derr">${String(e.message || e).replace(/</g, "&lt;")}</div>`;
@@ -134,7 +131,29 @@ rocket("diff-file", {
       if (st.again) { st.again = false; fetchWindow(true); }
     };
 
+    // The header that stays put shows the file at the top of the view, and
+    // only once that file's own header has scrolled out of sight; while the
+    // own header is in view, one is enough.
+    let serverHead = "";
+    const syncHead = () => {
+      const top = box.getBoundingClientRect().top;
+      const sec = [...win.querySelectorAll("section.vfile")].find((e) => {
+        const r = e.getBoundingClientRect();
+        return r.top <= top + 1 && r.bottom > top + 1;
+      });
+      if (!sec) { headEl.innerHTML = ""; return; }
+      const own = sec.querySelector(":scope > .vhead");
+      if (own && own.getBoundingClientRect().top >= top - 1) headEl.innerHTML = "";
+      else headEl.innerHTML = own ? own.outerHTML : serverHead;
+      const f = Number(sec.dataset.file);
+      if (f !== st.cur) {
+        st.cur = f;
+        host.dispatchEvent(new CustomEvent("diff-at", { bubbles: true, detail: { file: f } }));
+      }
+    };
+
     box.addEventListener("scroll", () => {
+      syncHead();
       if (box.scrollTop !== lastWrote) {
         lastScroll = performance.now();
         clearTimeout(restTimer);
@@ -158,7 +177,7 @@ rocket("diff-file", {
     // a new file: start at its top
     observeProps(() => {
       st.fp = ""; st.top = -1; st.total = 0; st.cur = -1; st.target = 0;
-      headEl.innerHTML = "";
+      headEl.innerHTML = ""; serverHead = "";
       place(geo(null), 0);
       box.scrollTop = 0;
       fetchWindow(true);
